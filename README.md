@@ -10,7 +10,7 @@ The script is commented to help guide you through the setup.
 
 It is recommended to automate the running of the script at least once a day to keep the pre-roll up to date. This can be done through a cronjob or any other scheduling method of your choice.
 
-The version of ffmpeg included in this repo is a verison that has been compiled with the necessary libraries to work with adding overlays to video files. Other versions may not work for you. You can substitute the font file with anything you want, you just need to make the filename change accordingly in the script.
+The version of ffmpeg included in this repo is a version that has been compiled with the necessary libraries to work with adding overlays to video files. Other versions may not work for you. You can substitute the font file with anything you want, you just need to make the filename change accordingly in the script.
 
 ## Radarr
 
