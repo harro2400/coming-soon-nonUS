@@ -1,4 +1,4 @@
-# coming-soon
+# Coming Soon Python Script
 
 ## Notes
 
