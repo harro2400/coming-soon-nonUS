@@ -19,6 +19,7 @@ To obtain the link for iCal, go to the Calendar tab from the left menu bar, then
 ## Example
 
 An example template: [Template](https://www.youtube.com/watch?v=kKc8jydRlzc)
+
 Example of processed final video: [Final](https://www.youtube.com/watch?v=IJHpwps4DYM)
 
 ## Important
