@@ -20,13 +20,13 @@ An example template: [Template](https://www.youtube.com/watch?v=kKc8jydRlzc)
 
 Example of processed final video: [Final](https://www.youtube.com/watch?v=IJHpwps4DYM)
 
-### Usage
+## Usage
 
 Note: docker cli requires quotation marks for parameters and docker compose requires no quotation marks.
 
 Everything needed for the script to run is in the Docker image.
 
-#### docker cli
+### docker cli
 
 ```
 docker run -d \
@@ -51,7 +51,7 @@ docker run -d \
     chadwpalm/coming-soon:latest
 ```
 
-#### docker compose
+### docker compose
 
 ```
   comingsoon:
