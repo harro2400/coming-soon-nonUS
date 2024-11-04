@@ -1,20 +1,18 @@
 # coming-soon
 
-## Notes
-
 This is a Python script for generating a "Coming Soon" pre-roll using data from Radarr (Radarr must be in use to use this script).
 
 The way it works is it grabs the current iCal calendar from Radarr, then parses through the data to find upcoming digital releases and creates an intermediate text file listing the releases. It then overlays the text file onto an input video of your choice using ffmpeg and outputs the final file for your use.
 
-The script is commented to help guide you through the setup.
-
-It is recommended to automate the running of the script at least once a day to keep the pre-roll up to date. This can be done through a cronjob or any other scheduling method of your choice.
-
-The version of ffmpeg included in this repo is a verison that has been compiled with the necessary libraries to work with adding overlays to video files. Other versions may not work for you. You can substitute the font file with anything you want, you just need to make the filename change accordingly in the script.
-
 ## Radarr
 
 To obtain the link for iCal, go to the Calendar tab from the left menu bar, then click on the "iCal Link" button on the top of the page. Keep "Show as All-Day Event" unchecked, but you can choose if you want "Include Unmonitored" checked or not. Leave the Tags blank and copy the text from the iCal Feed box into the string in the Python script.
+
+![docker](https://delftswa.github.io/chapters/docker/images/docker_logo.png =300x)
+
+Docker image location: [chadwpalm/coming-soon](https://hub.docker.com/repository/docker/chadwpalm/coming-soon)
+
+The only current tag is "latest".
 
 ## Example
 
@@ -22,7 +20,96 @@ An example template: [Template](https://www.youtube.com/watch?v=kKc8jydRlzc)
 
 Example of processed final video: [Final](https://www.youtube.com/watch?v=IJHpwps4DYM)
 
-## Important
+### Usage
+
+Note: docker cli requires quotation marks for parameters and docker compose requires no quotation marks.
+
+Everything needed for the script to run is in the Docker image.
+
+#### docker cli
+
+```
+docker run -d \
+    --name=coming-soon \
+    --network host \
+    -e CRON_SCHEDULE="0 0 * * *" \
+    -e TZ=America/Los_Angeles \
+    -e INPUT_FILE="ComingSoonTemplate.mp4" \
+    -e FONT_FILE="times new roman.ttf" \
+    -e ICAL_URL="http://x.x.x.x:7878/feed/v3/calendar/Radarr.ics?apikey=******************" \
+    -e FONT_SIZE="70" \
+    -e FONT_COLOR="white" \
+    -e X_COORD="300" \
+    -e Y_COORD="150" \
+    -e START_TIME="5" \
+    -e END_TIME="13" \
+    -e UID="1000" \
+    -e GID="1000" \
+    -v /host/config/dir:/config \
+    -v /host/output/dir:/output \
+    --restart unless-stopped \
+    chadwpalm/coming-soon:latest
+```
+
+#### docker compose
+
+```
+  comingsoon:
+    image: chadwpalm/coming-soon:latest
+    container_name: coming-soon
+    environment:
+      - CRON_SCHEDULE=0 0 * * *
+      - TZ=America/Los_Angeles
+      - INPUT_FILE=ComingSoon.mp4
+      - ICAL_URL=http://x.x.x.x:7878/feed/v3/calendar/Radarr.ics?apikey=********************
+      - FONT_SIZE=70
+      - FONT_COLOR=white
+      - X_COORD=300
+      - Y_COORD=150
+      - START_TIME=5
+      - END_TIME=13
+      - UID=1000
+      - GID=1000
+    volumes:
+      - /host/config/dir:/config
+      - host/output/dir:/output
+    restart: unless-stopped
+    network_mode: "host"
+```
+
+| Param                       | Description                                                                                                                                                                                                                                                                                                                                                       |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --name                      | The name you want to give to the container.                                                                                                                                                                                                                                                                                                                       |
+| -e UID                      | (Optional) The user id for the settings file.                                                                                                                                                                                                                                                                                                                     |
+| -e GID                      | (Optional) The group id for the settings file.                                                                                                                                                                                                                                                                                                                    |
+| -e CRON_SCHEDULE            | (Required) The times you want the script to run.                                                                                                                                                                                                                                                                                                                  |
+| -e TZ                       | (Recommended) Sets the time zone for the logs and is essential for schedule accuracy.                                                                                                                                                                                                                                                                             |
+| -e INPUT_FILE               | (Required) The name of the template file the text will be overlaid on. This needs to be placed in the mounted config directory.                                                                                                                                                                                                                                   |
+| -e FONT_FILE                | (Optional) The name of the truetype font file. Must be a ttf file and placed in the mounted config directory. This parameter is optional and if ommited arial font will be used by default.                                                                                                                                                                       |
+| -e ICAL_URL                 | (Required) This is the generated from Radarr (See above).                                                                                                                                                                                                                                                                                                         |
+| -e FONT_SIZE                | (Required) The font size of the generated text in pixels.                                                                                                                                                                                                                                                                                                         |
+| -e FONT_COLOR               | (Required) Color of the generated text. Usable strings can be found here: [color-syntax](https://ffmpeg.org/ffmpeg-utils.html#color-syntax)                                                                                                                                                                                                                       |
+| -e X_COORD                  | (Required) The x coordinate for the top-left of the text area in pixels.                                                                                                                                                                                                                                                                                          |
+| -e Y_COORD                  | (Required) The y coordinate for the top-left of the text area in pixels.                                                                                                                                                                                                                                                                                          |
+| -e START_TIME               | (Required) The start time (in seconds) the text will appear in the video.                                                                                                                                                                                                                                                                                         |
+| -e END_TIME                 | (Required) The end time (in seconds) the text will appear in the video.                                                                                                                                                                                                                                                                                           |
+| -v /host/config/dir:/config | This is the mount points for the config directory. This is where the input file and font file need to be placed and where the log in intermediate text file will be generated. The left of the colon will be the path to the config on the host machine. The right of the colon will be the path of the config in the container and should always be **/config**. |
+| -v /host/output/dir:/output | This is the mount points for the output directory. This is where the final output file will be saved. The left of the colon will be the path to the output on the host machine. The right of the colon will be the path of the out in the container and should always be **/output**.                                                                             |
+| --restart                   | Docker [restart behavior](https://docs.docker.com/engine/reference/commandline/run/#restart).                                                                                                                                                                                                                                                                     |
+
+This UID and GID should match the user and group setting used on the host so that the generated files are for the same user/group as the host account and prevents any permissions issues. These values both default to 1000 is not entered.
+
+## Native Install
+
+**Ignore everything below if you are using Docker**
+
+For native applications use **app.py** (app-docker.py is only used during the building of the Docker container and can be ignored in native applications). The script is commented to help guide you through the setup.
+
+It is recommended to automate the running of the script at least once a day to keep the pre-roll up to date. This can be done through a cronjob or any other scheduling method of your choice.
+
+The version of ffmpeg included in this repo is a verison that has been compiled with the necessary libraries to work with adding overlays to video files. Other versions may not work for you. You can substitute the font file with anything you want, you just need to make the filename change accordingly in the script.
+
+### Important
 
 This Python script uses the library "icalendar" to parse the iCal information received from Radarr. You will need to install the library onto your system using pip. This may also require you to install the pip package on your system. I won't go into any Python or Linux usage details here. Google or ChatGPT is a good resource for helping in these situations.
 
