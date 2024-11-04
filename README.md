@@ -1,4 +1,4 @@
-# coming-soon
+# "Coming Soon" Pre-Roll Creation Script
 
 This is a Python script for generating a "Coming Soon" pre-roll using data from Radarr (Radarr must be in use to use this script).
 
@@ -8,7 +8,7 @@ The way it works is it grabs the current iCal calendar from Radarr, then parses 
 
 To obtain the link for iCal, go to the Calendar tab from the left menu bar, then click on the "iCal Link" button on the top of the page. Keep "Show as All-Day Event" unchecked, but you can choose if you want "Include Unmonitored" checked or not. Leave the Tags blank and copy the text from the iCal Feed box into the string in the Python script.
 
-![docker](https://delftswa.github.io/chapters/docker/images/docker_logo.png =300x)
+# Docker
 
 Docker image location: [chadwpalm/coming-soon](https://hub.docker.com/repository/docker/chadwpalm/coming-soon)
 
