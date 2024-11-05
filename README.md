@@ -99,6 +99,14 @@ docker run -d \
 
 This UID and GID should match the user and group setting used on the host so that the generated files are for the same user/group as the host account and prevents any permissions issues. These values both default to 1000 is not entered.
 
+### Building Docker Image
+
+If you want to make modifications and rebuild the Docker image for yourself you need to edit the app-docker.py script as this is the one that gets built into the image.....not app.py.
+
+- Clone the repo
+- Go into the directory (probably "coming-soon" unless you changed it during cloning)
+- Run the command "docker build -t <image-name>:<tag> ."
+
 ## Native Install
 
 **Ignore everything below if you are using Docker**
