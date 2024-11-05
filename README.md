@@ -105,7 +105,7 @@ If you want to make modifications and rebuild the Docker image for yourself you 
 
 - Clone the repo
 - Go into the directory (probably "coming-soon" unless you changed it during cloning)
-- Run the command "docker build -t <image-name>:<tag> ."
+- Run the command `docker build -t <image-name>:<tag> .` (Make sure to add the period at the end. It represents building from the Dockerfile in the current directory, not the end of a sentence)
 
 ## Native Install
 
