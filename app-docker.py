@@ -33,7 +33,7 @@ x = int(os.getenv("X_COORD", 300))
 y = int(os.getenv("Y_COORD", 150))
 startTime = int(os.getenv("START_TIME",5))
 endTime = int(os.getenv("END_TIME", 13))
-centerText = (os.getenv(CENTER_TEXT), False)
+centerText = os.getenv("CENTER_TEXT", "false").lower() == "true"
 lineSpacing = int(os.getenv("LINE_SPACING", 10))
 
 if centerText:
