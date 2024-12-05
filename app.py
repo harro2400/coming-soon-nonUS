@@ -40,6 +40,12 @@ x = 300
 y = 150
 startTime = 5
 endTime = 13
+lineSpacing = 10
+centerText = False
+
+if centerText:
+    x = "(w-text_w)/2"
+    y = "(h-text_h)/2"
 
 # Fetching of ical file
 
@@ -85,7 +91,7 @@ def ical_to_filtered_list(ical_data):
 def write_to_file(events, filename):
     with open(filename, "w") as file:
         for summary, dtstart in events:
-            file.write(f"{dtstart} - {summary}\n\n") # You can edit this line to format how you desire. {dtstart} is the release date and {summary} is the movie title.
+            file.write(f"{dtstart} - {summary}\n") # You can edit this line to format how you desire. {dtstart} is the release date and {summary} is the movie title.
     logging.info(f"Wrote {len(events)} events to {filename}")
 
 # This is the running of the ffmpeg command. It takes in the intermediate file and overlays the text onto the video.
@@ -93,7 +99,7 @@ def write_to_file(events, filename):
 def run_ffmpeg_command():
     command = (
         f"{ffmpegLoc}ffmpeg -y -i {inputFile} -vf "
-        f"\"drawtext=textfile={textFile}:fontfile={fontFile}:fontsize={fontSize}:fontcolor={fontColor}:x={x}:y={y}:enable='between(t,{startTime},{endTime})'\" "
+        f"\"drawtext=textfile={textFile}:fontfile={fontFile}:fontsize={fontSize}:fontcolor={fontColor}:x={x}:y={y}:line_spacing={lineSpacing}:enable='between(t,{startTime},{endTime})'\" "
         f"-c:a copy {outputFile}"
     )
     subprocess.run(command, shell=True, check=True)
