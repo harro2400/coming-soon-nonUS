@@ -41,6 +41,8 @@ docker run -d \
     -e FONT_COLOR="white" \
     -e X_COORD="300" \
     -e Y_COORD="150" \
+    -e CENTER_TEXT="false" \
+    -e LINE_SPACING="10"
     -e START_TIME="5" \
     -e END_TIME="13" \
     -e UID="1000" \
@@ -66,6 +68,8 @@ docker run -d \
       - FONT_COLOR=white
       - X_COORD=300
       - Y_COORD=150
+      - CENTER_TEXT=false
+      - LINE_SPACING=10
       - START_TIME=5
       - END_TIME=13
       - UID=1000
@@ -91,6 +95,8 @@ docker run -d \
 | -e FONT_COLOR               | (Required) Color of the generated text. Usable strings can be found here: [color-syntax](https://ffmpeg.org/ffmpeg-utils.html#color-syntax)                                                                                                                                                                                                                       |
 | -e X_COORD                  | (Required) The x coordinate for the top-left of the text area in pixels.                                                                                                                                                                                                                                                                                          |
 | -e Y_COORD                  | (Required) The y coordinate for the top-left of the text area in pixels.                                                                                                                                                                                                                                                                                          |
+| -e CENTER_TEXT              | (Optional) If set to "true" it centers the text on the screen. This will override the X and Y coordinates. Set to "false" to use X and Y coordinates. If ommited it will default to "false".                                                                                                                                                                      |
+| -e LINE_SPACING             | (Optional) Sets the spacing between each movie title line in pixels. If ommited it will default to 10 pixels.                                                                                                                                                                                                                                                     |
 | -e START_TIME               | (Required) The start time (in seconds) the text will appear in the video.                                                                                                                                                                                                                                                                                         |
 | -e END_TIME                 | (Required) The end time (in seconds) the text will appear in the video.                                                                                                                                                                                                                                                                                           |
 | -v /host/config/dir:/config | This is the mount points for the config directory. This is where the input file and font file need to be placed and where the log in intermediate text file will be generated. The left of the colon will be the path to the config on the host machine. The right of the colon will be the path of the config in the container and should always be **/config**. |

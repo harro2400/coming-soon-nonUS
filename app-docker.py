@@ -33,6 +33,12 @@ x = int(os.getenv("X_COORD", 300))
 y = int(os.getenv("Y_COORD", 150))
 startTime = int(os.getenv("START_TIME",5))
 endTime = int(os.getenv("END_TIME", 13))
+centerText = os.getenv("CENTER_TEXT", "false").lower() == "true"
+lineSpacing = int(os.getenv("LINE_SPACING", 10))
+
+if centerText:
+    x = "(w-text_w)/2"
+    y = "(h-text_h)/2"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -87,7 +93,7 @@ def ical_to_filtered_list(ical_data):
 def write_to_file(events, filename):
     with open(filename, "w") as file:
         for summary, dtstart in events:
-            file.write(f"{dtstart} - {summary}\n\n") # You can edit this line to format how you desire. {dtstart} is the release date and {summary} is the movie title.
+            file.write(f"{dtstart} - {summary}\n") # You can edit this line to format how you desire. {dtstart} is the release date and {summary} is the movie title.
     logging.info(f"Wrote {len(events)} events to {filename}")
 
 # This is the running of the ffmpeg command. It takes in the intermediate file and overlays the text onto the video.
@@ -95,7 +101,7 @@ def write_to_file(events, filename):
 def run_ffmpeg_command():
     command = (
         f"{ffmpegLoc}/ffmpeg -y -i {inputFile} -vf "
-        f"\"drawtext=textfile={textFile}:fontfile={fontFile}:fontsize={fontSize}:fontcolor={fontColor}:x={x}:y={y}:enable='between(t,{startTime},{endTime})'\" "
+        f"\"drawtext=textfile={textFile}:fontfile={fontFile}:fontsize={fontSize}:fontcolor={fontColor}:x={x}:y={y}:line_spacing={lineSpacing}:enable='between(t,{startTime},{endTime})'\" "
         f"-c:a copy {outputFile}"
     )
     logging.info(f"FFmpeg command: {command}")
