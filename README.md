@@ -1,3 +1,7 @@
+### Update March 4th, 2025:
+
+Note: This script has been updated to include Sonarr listings. It will show when a new series or season starts for a television show. You will need to update your environment variables to change the Radarr variable and add a Sonarr variable. See the "docker cli" and "docker compose" sections below for new variables.
+
 # "Coming Soon" Pre-Roll Creation Script
 
 This is a Python script for generating a "Coming Soon" pre-roll using data from Radarr (Radarr must be in use to use this script).
@@ -36,7 +40,8 @@ docker run -d \
     -e TZ=America/Los_Angeles \
     -e INPUT_FILE="ComingSoonTemplate.mp4" \
     -e FONT_FILE="times new roman.ttf" \
-    -e ICAL_URL="http://x.x.x.x:7878/feed/v3/calendar/Radarr.ics?apikey=******************" \
+    -e ICAL_URL_RADARR="http://x.x.x.x:7878/feed/v3/calendar/Radarr.ics?apikey=******************" \
+    -e ICAL_URL_SONARR="http://x.x.x.x:8989/feed/v3/calendar/Sonarr.ics?apikey=******************" \
     -e FONT_SIZE="70" \
     -e FONT_COLOR="white" \
     -e X_COORD="300" \
@@ -63,7 +68,8 @@ docker run -d \
       - CRON_SCHEDULE=0 0 * * *
       - TZ=America/Los_Angeles
       - INPUT_FILE=ComingSoon.mp4
-      - ICAL_URL=http://x.x.x.x:7878/feed/v3/calendar/Radarr.ics?apikey=********************
+      - ICAL_URL_RADARR=http://x.x.x.x:7878/feed/v3/calendar/Radarr.ics?apikey=********************
+      - ICAL_URL_SONARR=http://x.x.x.x:8989/feed/v3/calendar/Sonarr.ics?apikey=********************
       - FONT_SIZE=70
       - FONT_COLOR=white
       - X_COORD=300

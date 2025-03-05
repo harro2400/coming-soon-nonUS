@@ -4,6 +4,7 @@ import os
 import logging
 from icalendar import Calendar
 from datetime import datetime, date, time, timedelta
+import re
 
 # Logging setup. You must input a log file location.
 
@@ -17,7 +18,8 @@ inputFile = f"/config/{os.getenv("INPUT_FILE")}" # Input file. This is the video
 outputFile = "/output/ComingSoon.mp4" # This is the location where the final video is saved.
 fontFileEnv = f"/config/{os.getenv('FONT_FILE', 'arial.ttf')}"
 fontFile = fontFileEnv if os.path.exists(fontFileEnv) else "/coming-soon/arial.ttf"
-iCalURL = os.getenv("ICAL_URL") # This is the URL to retrieve Radarr ical file.
+iCalURL_radarr = os.getenv("ICAL_URL_RADARR") # This is the URL to retrieve Radarr ical file.
+iCalURL_sonarr = os.getenv("ICAL_URL_SONARR") # This is the URL to retrieve Sonarr ical file.
 
 # Here are the parameters for the text overlayed onto the video. The defaults are what works in my setup.
 # fontsize: fontsize in pixels
@@ -51,29 +53,58 @@ logging.basicConfig(
 
 # Fetching of ical file
 
-def fetch_ical_data(url):
-    response = requests.get(url)
-    response.raise_for_status()
+def fetch_ical_data(url_radarr, url_sonarr):
+    response_radarr = requests.get(url_radarr)
+    response_radarr.raise_for_status()
+    response_sonarr = requests.get(url_sonarr)
+    response_sonarr.raise_for_status()
     logging.info("Fetched iCal data successfully")
-    return response.text
+    return response_radarr.text,response_sonarr.text
 
 # Checking if just a date and makes the object a datetime object for downsteam operations
 
 def normalize_dt(dt):
+    
+    if isinstance(dt, str):
+        try:
+            # Try parsing datetime with timezone (e.g., "2025-02-26 01:00:00+00:00")
+            dt = datetime.strptime(dt, "%Y-%m-%d %H:%M:%S%z")
+            dt = dt.replace(tzinfo=None)  # Strip timezone info
+        except ValueError:
+            # If that fails, assume it's a date only format (e.g., "2024-11-06")
+            dt = datetime.strptime(dt, "%Y-%m-%d")
+
+    # If the input is a datetime object with timezone info
+    elif isinstance(dt, datetime) and dt.tzinfo is not None:
+        dt = dt.replace(tzinfo=None)  # Remove timezone info
+
     if isinstance(dt, date) and not isinstance(dt, datetime):
-        return datetime.combine(dt, time.min)
+        # If the input is a date object, combine with time
+        dt = datetime.combine(dt, time.min)
+
+    dt = dt.replace(hour=0, minute=0, second=0, microsecond=0)  # Reset to midnight
     return dt
+
+def extract_episode(input_str):
+    # Regular expression to match the episode in the format '1x05'
+    match = re.match(r"^(.*?) - (\d+)x(\d+)", input_str)
+    if match:
+        # Return the three parts: episode name, season number, episode number
+        return match.group(1), match.group(2), match.group(3)
+    return None, None, None  # Return None if no match is found
 
 # Parsing of the ical file to create a filtered list of upcoming digital releases
 
 def ical_to_filtered_list(ical_data):
-    calendar = Calendar.from_ical(ical_data)
+    calendar_radarr = Calendar.from_ical(ical_data[0])
+    calendar_sonarr = Calendar.from_ical(ical_data[1])
     events = []
     today = datetime.now()
 
-    for component in calendar.walk():
+    for component in calendar_radarr.walk():
         if component.name == "VEVENT":
             dtstart = normalize_dt(component.get('dtstart').dt)
+            print (dtstart)
             if dtstart > today:
                 summary = str(component.get('summary'))
                 logging.info(f"Analyzing: {summary} {dtstart}")
@@ -84,8 +115,36 @@ def ical_to_filtered_list(ical_data):
                     logging.info(f"Processing {cleaned_summary}")
                 else:
                     logging.info("Not a digital release")
-    
+
+    for component in calendar_sonarr.walk():
+        if component.name == "VEVENT":
+            dtstart = normalize_dt(component.get('dtstart').dt)
+            if dtstart > today:
+                summary = str(component.get('summary'))
+
+                seas_epi = extract_episode(summary)
+
+                show, season, episode = seas_epi
+
+                logging.info(f"Analyzing: {summary} {dtstart}")
+
+                print ("Show name: ", seas_epi[0], "\nSeason: ", seas_epi[1], "\nEpisode: ", seas_epi[2])
+                
+                if season == "1" and episode == "01":
+                    cleaned_summary = f"{show} (Series Premiere)"
+                    dtstart_str = dtstart.strftime("%m/%d/%Y")
+                    events.append((cleaned_summary, dtstart_str))
+                    logging.info(f"Processing {cleaned_summary}")
+                elif season != "1" and episode == "01":
+                    cleaned_summary = f"{show} (Season Premiere)"
+                    dtstart_str = dtstart.strftime("%m/%d/%Y")
+                    events.append((cleaned_summary, dtstart_str))
+                    logging.info(f"Processing {cleaned_summary}")
+                else:
+                    logging.info("Not a new show or new season")
+
     events.sort(key=lambda x: datetime.strptime(x[1], "%m/%d/%Y"))
+    print(events)
     return events
 
 # Writes the list to the intermediate file.
@@ -120,7 +179,8 @@ def delete_file_if_no_events(filepath):
 
 def main():
     try:
-        ical_data = fetch_ical_data(iCalURL)
+        ical_data = fetch_ical_data(iCalURL_radarr, iCalURL_sonarr)
+        
         events = ical_to_filtered_list(ical_data)
         
         write_to_file(events, textFile)
