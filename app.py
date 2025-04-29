@@ -143,7 +143,7 @@ def ical_to_filtered_list(ical_data):
                 else:
                     logging.info("Not a new show or new season")
 
-    events.sort(key=lambda x: datetime.strptime(x[1], "%m/%d/%Y"))
+    events.sort(key=lambda x: datetime.strptime(x[1], "%d/%m/%Y"))
     print(events)
     return events
 
@@ -151,8 +151,12 @@ def ical_to_filtered_list(ical_data):
 
 def write_to_file(events, filename):
     with open(filename, "w") as file:
+        # Write the introductory line
+        file.write("Coming Soon to Rionflix:\n\n")      
+        # Write the list of events
         for summary, dtstart in events:
-            file.write(f"{dtstart} - {summary}\n") # You can edit this line to format how you desire. {dtstart} is the release date and {summary} is the movie title.
+            file.write(f"{dtstart} - {summary}\n")  # Format the release date and movie title as desired.
+        
     logging.info(f"Wrote {len(events)} events to {filename}")
 
 # This is the running of the ffmpeg command. It takes in the intermediate file and overlays the text onto the video.
