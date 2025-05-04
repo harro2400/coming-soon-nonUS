@@ -110,7 +110,7 @@ def ical_to_filtered_list(ical_data):
                 logging.info(f"Analyzing: {summary} {dtstart}")
                 if "Digital Release" in summary:
                     cleaned_summary = summary.replace(" (Digital Release)", "")
-                    dtstart_str = dtstart.strftime("%m/%d/%Y")
+                    dtstart_str = dtstart.strftime("%d/%m/%Y")
                     events.append((cleaned_summary, dtstart_str))
                     logging.info(f"Processing {cleaned_summary}")
                 else:
@@ -132,18 +132,18 @@ def ical_to_filtered_list(ical_data):
                 
                 if season == "1" and episode == "01":
                     cleaned_summary = f"{show} (Series Premiere)"
-                    dtstart_str = dtstart.strftime("%m/%d/%Y")
+                    dtstart_str = dtstart.strftime("%d/%m/%Y")
                     events.append((cleaned_summary, dtstart_str))
                     logging.info(f"Processing {cleaned_summary}")
                 elif season != "1" and episode == "01":
                     cleaned_summary = f"{show} (Season Premiere)"
-                    dtstart_str = dtstart.strftime("%m/%d/%Y")
+                    dtstart_str = dtstart.strftime("%d/%m/%Y")
                     events.append((cleaned_summary, dtstart_str))
                     logging.info(f"Processing {cleaned_summary}")
                 else:
                     logging.info("Not a new show or new season")
 
-    events.sort(key=lambda x: datetime.strptime(x[1], "%m/%d/%Y"))
+    events.sort(key=lambda x: datetime.strptime(x[1], "%d/%m/%Y"))
     print(events)
     return events
 
